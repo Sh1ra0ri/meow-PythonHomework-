@@ -101,3 +101,12 @@ def test_new_product_with_duplicates():
     updated_product = Product.new_product(product_data, existing_products)
     assert updated_product.quantity == 5  # 3 + 2
     assert updated_product.price == 2500.0
+
+
+def test_add_product_subclass(category_sample):
+    class SubProduct(Product):
+        pass
+
+    sub_product = SubProduct("Тостер", "Тостер для хлеба", 2000.0, 3)
+    category_sample.add_product(sub_product)
+    assert "Тостер, 2000.0 руб. Остаток: 3 шт." in category_sample.products

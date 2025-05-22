@@ -55,12 +55,17 @@ class Category:
         Category.category_count += 1
         Category.product_count += len(self.__products)
 
-    def add_product(self, product: Product):
+    def add_product(self, product):
         if isinstance(product, Product):
             self.__products.append(product)
             Category.product_count += 1
         else:
-            raise ValueError
+            if not (
+                hasattr(product, "__class__") and issubclass(product.__class__, Product)
+            ):
+                raise ValueError
+            self.__products.append(product)
+            Category.product_count += 1
 
     @property
     def products(self) -> str:
