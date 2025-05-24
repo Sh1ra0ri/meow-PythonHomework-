@@ -40,6 +40,12 @@ class Product:
 
         return cls(name, description, price, quantity)
 
+    def __str__(self) -> str:
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):
+        return (self.price * self.quantity) + (other.price * other.quantity)
+
 
 class Category:
     category_count: int = 0
@@ -75,3 +81,7 @@ class Category:
             f"{product.name}, {product.price} руб. " f"Остаток: {product.quantity} шт."
             for product in self.__products
         )
+
+    def __str__(self) -> str:
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
