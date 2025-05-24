@@ -110,3 +110,17 @@ def test_add_product_subclass(category_sample):
     sub_product = SubProduct("Тостер", "Тостер для хлеба", 2000.0, 3)
     category_sample.add_product(sub_product)
     assert "Тостер, 2000.0 руб. Остаток: 3 шт." in category_sample.products
+
+
+def test_product_str(product_sample):
+    assert str(product_sample) == "Миксер, 2000.0 руб. Остаток: 3 шт."
+
+
+def test_category_str(category_sample):
+    assert str(category_sample) == "Посуда, количество продуктов: 15 шт."
+
+
+def test_product_add():
+    product1 = Product("Блендер", "Кухонный блендер", 150.0, 8)
+    product2 = Product("Тостер", "Тостер для хлеба", 250.0, 4)
+    assert product1 + product2 == 2200.0
