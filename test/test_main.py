@@ -12,7 +12,12 @@ def category_sample():
     Category.category_count = 0
     Category.product_count = 0
     products = [
-        Product("Сковорода", "Сковорода с антипригарным покрытием", 1200.0, 10),
+        Product(
+            "Сковорода",
+            "Сковорода с антипригарным покрытием",
+            1200.0,
+            10
+        ),
         Product("Кастрюля", "Кастрюля 3 литра", 1800.0, 7),
     ]
     return Category("Кухня", "Товары для кухни", products)
@@ -42,8 +47,10 @@ def test_category_init(category_sample):
     assert category_sample.description == "Товары для кухни"
     assert isinstance(category_sample.products, str)
     assert len(category_sample.products.split("\n")) == 2
-    assert "Сковорода, 1200.0 руб. Остаток: 10 шт." in category_sample.products
-    assert "Кастрюля, 1800.0 руб. Остаток: 7 шт." in category_sample.products
+    assert "Сковорода, 1200.0 руб. Остаток: 10 шт." \
+        in category_sample.products
+    assert "Кастрюля, 1800.0 руб. Остаток: 7 шт." \
+        in category_sample.products
 
 
 def test_category_counter():
@@ -119,7 +126,9 @@ def test_add_product_subclass(category_sample):
     class SubProduct(Product):
         pass
 
-    sub_product = SubProduct("Тостер", "Тостер для хлеба", 2000.0, 3)
+    sub_product = SubProduct(
+        "Тостер", "Тостер для хлеба", 2000.0, 3
+    )
     category_sample.add_product(sub_product)
     assert "Тостер, 2000.0 руб. Остаток: 3 шт." in category_sample.products
 
@@ -166,13 +175,11 @@ def test_lawngrass_init(lawngrass1):
 
 def test_smartphone_inheritance(smartphone):
     from src.main import Product
-
     assert isinstance(smartphone, Product)
 
 
 def test_lawngrass_inheritance(lawngrass1):
     from src.main import Product
-
     assert isinstance(lawngrass1, Product)
 
 

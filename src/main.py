@@ -22,9 +22,7 @@ class Product:
             self.__price = value
 
     @classmethod
-    def new_product(
-        cls, product_data: dict, existing_products: list = None
-    ) -> "Product":
+    def new_product(cls, product_data: dict, existing_products: list = None) -> "Product":
         name = product_data.get("name")
         description = product_data.get("description", "")
         price = product_data.get("price", 0.0)
@@ -64,23 +62,17 @@ class Category:
         Category.product_count += len(self.__products)
 
     def add_product(self, product):
-        if isinstance(product, Product):
-            self.__products.append(product)
-            Category.product_count += 1
-        else:
-            if not (
-                hasattr(product, "__class__") and issubclass(product.__class__, Product)
-            ):
-                raise ValueError
-            self.__products.append(product)
-            Category.product_count += 1
+        if not isinstance(product, Product):
+            raise ValueError("Продукт должен быть экземпляром класса Product или его подкласса")
+        self.__products.append(product)
+        Category.product_count += 1
 
     @property
     def products(self) -> str:
         if not self.__products:
             return "Категория пуста"
         return "\n".join(
-            f"{product.name}, {product.price} руб. " f"Остаток: {product.quantity} шт."
+            f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт."
             for product in self.__products
         )
 
