@@ -1,5 +1,5 @@
 import pytest
-from src.main import Product, Category
+from src.main import Product, Category, Smartphone, LawnGrass
 
 
 @pytest.fixture
@@ -16,6 +16,18 @@ def category_sample():
         Product("Кастрюля", "Кастрюля 3 литра", 1800.0, 7),
     ]
     return Category("Кухня", "Товары для кухни", products)
+
+
+@pytest.fixture
+def smartphone():
+    return Smartphone(
+        "iPhone", "Смартфон Apple", 50000.0, 3, 2.5, "14 Pro", 256, "Black"
+    )
+
+
+@pytest.fixture
+def lawngrass1():
+    return LawnGrass("Газон", "Трава для газона", 300.0, 10, "Россия", 14, "Зеленый")
 
 
 def test_product_init(product_sample):
@@ -113,14 +125,65 @@ def test_add_product_subclass(category_sample):
 
 
 def test_product_str(product_sample):
-    assert str(product_sample) == "Миксер, 2000.0 руб. Остаток: 3 шт."
+    assert str(product_sample) == "Чайник, 1500.0 руб. Остаток: 5 шт."
 
 
 def test_category_str(category_sample):
-    assert str(category_sample) == "Посуда, количество продуктов: 15 шт."
+    assert str(category_sample) == "Кухня, количество продуктов: 17 шт."
 
 
 def test_product_add():
     product1 = Product("Блендер", "Кухонный блендер", 150.0, 8)
     product2 = Product("Тостер", "Тостер для хлеба", 250.0, 4)
     assert product1 + product2 == 2200.0
+
+
+def test_product_add_type_error(smartphone, lawngrass1):
+    with pytest.raises(TypeError):
+        smartphone + lawngrass1
+
+
+def test_smartphone_init(smartphone):
+    assert smartphone.name == "iPhone"
+    assert smartphone.description == "Смартфон Apple"
+    assert smartphone.price == 50000.0
+    assert smartphone.quantity == 3
+    assert smartphone.efficiency == 2.5
+    assert smartphone.model == "14 Pro"
+    assert smartphone.memory == 256
+    assert smartphone.color == "Black"
+
+
+def test_lawngrass_init(lawngrass1):
+    assert lawngrass1.name == "Газон"
+    assert lawngrass1.description == "Трава для газона"
+    assert lawngrass1.price == 300.0
+    assert lawngrass1.quantity == 10
+    assert lawngrass1.country == "Россия"
+    assert lawngrass1.germination_period == 14
+    assert lawngrass1.color == "Зеленый"
+
+
+def test_smartphone_inheritance(smartphone):
+    from src.main import Product
+
+    assert isinstance(smartphone, Product)
+
+
+def test_lawngrass_inheritance(lawngrass1):
+    from src.main import Product
+
+    assert isinstance(lawngrass1, Product)
+
+
+def test_smartphone_attributes_types(smartphone):
+    assert isinstance(smartphone.efficiency, float)
+    assert isinstance(smartphone.model, str)
+    assert isinstance(smartphone.memory, int)
+    assert isinstance(smartphone.color, str)
+
+
+def test_lawngrass_attributes_types(lawngrass1):
+    assert isinstance(lawngrass1.country, str)
+    assert isinstance(lawngrass1.germination_period, int)
+    assert isinstance(lawngrass1.color, str)
