@@ -1,5 +1,7 @@
 import pytest
-from src.main import Product, Category, Smartphone, LawnGrass
+
+from src.main import (BaseProduct, Category, LawnGrass, PrintInitMixin,
+                      Product, Smartphone)
 
 
 @pytest.fixture
@@ -12,12 +14,7 @@ def category_sample():
     Category.category_count = 0
     Category.product_count = 0
     products = [
-        Product(
-            "Сковорода",
-            "Сковорода с антипригарным покрытием",
-            1200.0,
-            10
-        ),
+        Product("Сковорода", "Сковорода с антипригарным покрытием", 1200.0, 10),
         Product("Кастрюля", "Кастрюля 3 литра", 1800.0, 7),
     ]
     return Category("Кухня", "Товары для кухни", products)
@@ -47,10 +44,8 @@ def test_category_init(category_sample):
     assert category_sample.description == "Товары для кухни"
     assert isinstance(category_sample.products, str)
     assert len(category_sample.products.split("\n")) == 2
-    assert "Сковорода, 1200.0 руб. Остаток: 10 шт." \
-        in category_sample.products
-    assert "Кастрюля, 1800.0 руб. Остаток: 7 шт." \
-        in category_sample.products
+    assert "Сковорода, 1200.0 руб. Остаток: 10 шт." in category_sample.products
+    assert "Кастрюля, 1800.0 руб. Остаток: 7 шт." in category_sample.products
 
 
 def test_category_counter():
@@ -126,9 +121,7 @@ def test_add_product_subclass(category_sample):
     class SubProduct(Product):
         pass
 
-    sub_product = SubProduct(
-        "Тостер", "Тостер для хлеба", 2000.0, 3
-    )
+    sub_product = SubProduct("Тостер", "Тостер для хлеба", 2000.0, 3)
     category_sample.add_product(sub_product)
     assert "Тостер, 2000.0 руб. Остаток: 3 шт." in category_sample.products
 
@@ -175,11 +168,13 @@ def test_lawngrass_init(lawngrass1):
 
 def test_smartphone_inheritance(smartphone):
     from src.main import Product
+
     assert isinstance(smartphone, Product)
 
 
 def test_lawngrass_inheritance(lawngrass1):
     from src.main import Product
+
     assert isinstance(lawngrass1, Product)
 
 
@@ -194,3 +189,32 @@ def test_lawngrass_attributes_types(lawngrass1):
     assert isinstance(lawngrass1.country, str)
     assert isinstance(lawngrass1.germination_period, int)
     assert isinstance(lawngrass1.color, str)
+
+
+def test_base_product_is_abstract():
+    with pytest.raises(TypeError):
+        BaseProduct()  # type: ignore
+
+
+def test_product_inherits_base_product():
+    assert issubclass(Product, BaseProduct)
+
+
+def test_smartphone_inherits_product_only():
+    assert Smartphone.__bases__ == (Product,)
+
+
+def test_lawngrass_inherits_product_only():
+    assert LawnGrass.__bases__ == (Product,)
+
+
+def test_print_init_mixin(capsys):
+    product = Product("Тест", "Описание теста", 1000.0, 2)
+    captured = capsys.readouterr()
+    assert "Создан объект класса Product с параметрами" in captured.out
+    assert "'Тест', 'Описание теста', 1000.0, 2" in captured.out
+    assert product.name == "Тест"
+    assert product.description == "Описание теста"
+    assert product.price == 1000.0
+    assert product.quantity == 2
+    assert issubclass(Product, PrintInitMixin)

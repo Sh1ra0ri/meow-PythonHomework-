@@ -1,10 +1,51 @@
-class Product:
+from abc import ABC, abstractmethod
+
+
+class BaseProduct(ABC):
+    @abstractmethod
+    def __init__(self, name: str, description: str, price: float, quantity: int):
+        pass  # Абстрактный метод, реализация предоставляется наследниками
+
+    @property
+    @abstractmethod
+    def price(self) -> float:
+        pass
+
+    @price.setter
+    @abstractmethod
+    def price(self, value: float):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def new_product(cls, product_data: dict, existing_products: list = None):
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+    @abstractmethod
+    def __add__(self, other):
+        pass
+
+
+class PrintInitMixin:
+    def __init__(self, *args, **kwargs):
+        print(
+            f"Создан объект класса {self.__class__.__name__} с параметрами: {args}, {kwargs}"
+        )
+        super().__init__(*args, **kwargs)  # Передаём аргументы дальше по цепочке
+
+
+class Product(PrintInitMixin, BaseProduct):
     name: str
     description: str
     __price: float
     quantity: int
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
+        super().__init__(name, description, price, quantity)  # Вызов миксина
         self.name = name
         self.description = description
         self.__price = price
@@ -22,7 +63,9 @@ class Product:
             self.__price = value
 
     @classmethod
-    def new_product(cls, product_data: dict, existing_products: list = None) -> "Product":
+    def new_product(
+        cls, product_data: dict, existing_products: list = None
+    ) -> "Product":
         name = product_data.get("name")
         description = product_data.get("description", "")
         price = product_data.get("price", 0.0)
@@ -63,7 +106,9 @@ class Category:
 
     def add_product(self, product):
         if not isinstance(product, Product):
-            raise ValueError("Продукт должен быть экземпляром класса Product или его подкласса")
+            raise ValueError(
+                "Продукт должен быть экземпляром класса Product или его подкласса"
+            )
         self.__products.append(product)
         Category.product_count += 1
 
