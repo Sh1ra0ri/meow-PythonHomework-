@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class BaseProduct(ABC):
     @abstractmethod
-    def __init__(self, name: str, description: str, price: float, quantity: int):
+    def __init__(self, *args, **kwargs):
         pass
 
     @property
@@ -31,11 +31,17 @@ class BaseProduct(ABC):
 
 
 class PrintInitMixin:
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self, name: str, description: str, price: float, quantity: int, *args, **kwargs
+    ):
         print(
-            f"Создан объект класса {self.__class__.__name__} с параметрами: {args}, {kwargs}"
+            f"Создан объект класса {self.__class__.__name__} с параметрами: {(name, description, price, quantity)}"
         )
-        super().__init__(*args, **kwargs)  # Передаём аргументы дальше по цепочке
+        self.name = name
+        self.description = description
+        self._price = price
+        self.quantity = quantity
+        super().__init__(*args, **kwargs)
 
 
 class Product(PrintInitMixin, BaseProduct):
@@ -45,11 +51,10 @@ class Product(PrintInitMixin, BaseProduct):
     quantity: int
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
-        super().__init__(name, description, price, quantity)  # Вызов миксина
-        self.name = name
-        self.description = description
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+        super().__init__(name, description, price, quantity)
         self.__price = price
-        self.quantity = quantity
 
     @property
     def price(self) -> float:
@@ -70,6 +75,8 @@ class Product(PrintInitMixin, BaseProduct):
         description = product_data.get("description", "")
         price = product_data.get("price", 0.0)
         quantity = product_data.get("quantity", 0)
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
 
         if existing_products:
             for product in existing_products:
@@ -124,6 +131,13 @@ class Category:
     def __str__(self) -> str:
         total_quantity = sum(product.quantity for product in self.__products)
         return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+    def average_price(self) -> float:
+        try:
+            total_price = sum(product.price for product in self.__products)
+            return total_price / len(self.__products)
+        except ZeroDivisionError:
+            return 0.0
 
 
 class Smartphone(Product):
