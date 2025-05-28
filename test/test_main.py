@@ -1,7 +1,13 @@
 import pytest
 
-from src.main import (BaseProduct, Category, LawnGrass, PrintInitMixin,
-                      Product, Smartphone)
+from src.main import (
+    BaseProduct,
+    Category,
+    LawnGrass,
+    PrintInitMixin,
+    Product,
+    Smartphone,
+)
 
 
 @pytest.fixture
@@ -218,3 +224,30 @@ def test_print_init_mixin(capsys):
     assert product.price == 1000.0
     assert product.quantity == 2
     assert issubclass(Product, PrintInitMixin)
+
+
+def test_new_product_zero_quantity():
+    product_data = {
+        "name": "Тостер",
+        "description": "Тостер для хлеба",
+        "price": 2500.0,
+        "quantity": 0,
+    }
+    with pytest.raises(ValueError) as exc_info:
+        Product.new_product(product_data)
+    assert str(exc_info.value) == "Товар с нулевым количеством не может быть добавлен"
+
+
+def test_category_average_price(category_sample):
+    assert category_sample.average_price() == 1500.0
+
+
+def test_product_init_zero_quantity():
+    with pytest.raises(ValueError) as exc_info:
+        Product("Чайник", "Электрический чайник", 1500.0, 0)
+    assert str(exc_info.value) == "Товар с нулевым количеством не может быть добавлен"
+
+
+def test_category_average_price_empty():
+    empty_category = Category("Пустая", "Без товаров")
+    assert empty_category.average_price() == 0.0
