@@ -1,10 +1,51 @@
-class Product:
+from abc import ABC, abstractmethod
+
+
+class BaseProduct(ABC):
+    @abstractmethod
+    def __init__(self, name: str, description: str, price: float, quantity: int):
+        pass
+
+    @property
+    @abstractmethod
+    def price(self) -> float:
+        pass
+
+    @price.setter
+    @abstractmethod
+    def price(self, value: float):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def new_product(cls, product_data: dict, existing_products: list = None):
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+    @abstractmethod
+    def __add__(self, other):
+        pass
+
+
+class PrintInitMixin:
+    def __init__(self, *args, **kwargs):
+        print(
+            f"Создан объект класса {self.__class__.__name__} с параметрами: {args}, {kwargs}"
+        )
+        super().__init__(*args, **kwargs)  # Передаём аргументы дальше по цепочке
+
+
+class Product(PrintInitMixin, BaseProduct):
     name: str
     description: str
     __price: float
     quantity: int
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
+        super().__init__(name, description, price, quantity)  # Вызов миксина
         self.name = name
         self.description = description
         self.__price = price
@@ -44,6 +85,8 @@ class Product:
         return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other):
+        if type(self) is not type(other):
+            raise TypeError
         return (self.price * self.quantity) + (other.price * other.quantity)
 
 
@@ -62,26 +105,58 @@ class Category:
         Category.product_count += len(self.__products)
 
     def add_product(self, product):
-        if isinstance(product, Product):
-            self.__products.append(product)
-            Category.product_count += 1
-        else:
-            if not (
-                hasattr(product, "__class__") and issubclass(product.__class__, Product)
-            ):
-                raise ValueError
-            self.__products.append(product)
-            Category.product_count += 1
+        if not isinstance(product, Product):
+            raise ValueError(
+                "Продукт должен быть экземпляром класса Product или его подкласса"
+            )
+        self.__products.append(product)
+        Category.product_count += 1
 
     @property
     def products(self) -> str:
         if not self.__products:
             return "Категория пуста"
         return "\n".join(
-            f"{product.name}, {product.price} руб. " f"Остаток: {product.quantity} шт."
+            f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт."
             for product in self.__products
         )
 
     def __str__(self) -> str:
         total_quantity = sum(product.quantity for product in self.__products)
         return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+
+class Smartphone(Product):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        efficiency: float,
+        model: str,
+        memory: int,
+        color: str,
+    ):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        country: str,
+        germination_period: int,
+        color: str,
+    ):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
